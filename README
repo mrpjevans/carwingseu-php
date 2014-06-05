@@ -1,0 +1,146 @@
+Carwings-EU
+-----------
+
+An experimental PHP wrapper for the European Nissan Carwings telematics service.
+
+This project is neither associated nor endorsed by Nissan Group.
+
+Licensed under the terms of the GNU GENERAL PUBLIC LICENSE Version 2, June 1991
+See LICENSE.txt for details
+
+Version 0.1
+May 2014
+
+
+Requirements
+------------
+- PHP 5.3 or above
+- PHP cURL Module (with SSL support)
+
+
+Installation
+------------
+None really, just make sure the class and XML files are all together in the same
+folder.
+
+
+Usage
+-----
+
+- Include the file in your project
+
+require('class.carwingseu.php');
+
+- Construct the object
+
+$o = new carwingseu($vin = null, $cookiejar = null, $retries = 3)
+
+vin - The VIN of your Leaf (see notes)
+
+cookiejar - A file to contain login information so you can hold state between
+requests
+
+retries - How many time to retry any given request
+
+vin - Some requests to Carwings require your Leaf's VIN number. However, this
+is automatically populated by the login() method and is only required if you
+are not maintaining state in your script (e.g. page refresh).
+
+cookiejar - The cookiejar can be any file, and need not exist when specified.
+If you want to avoid having to go through the login process every time. See the
+example for use of a temporary file.
+
+retries - Carwings (at time of writing) is *flaky* and often responds with Java
+errors or nothing. So, retries determins automatically how many times any given
+request is submitted before giving up.
+
+- Login
+
+(array) $o->login($username, $password, $parse = true);
+
+username and password - Your Carwings username and password
+
+Logs you in to the Carwings service. If login fails, an exception is thrown
+with error code 9001.
+
+On successful login, an array is returned. For the full response as a nested
+associative array, set $parse to false. Otherwise, a summary array with some
+additional formatting is returned.
+
+- Update
+
+(void) $o->update()
+
+Request an update from your Leaf. An exception is thrown if things do not turn
+out as expected.
+
+- Info
+
+(array) $o->info($parse = true)
+
+Requests the last known information from Nissan. Set $parse to false for the
+raw response as a nested array.
+
+
+Very Simple Example
+-------------------
+This would return the last update received from your Leaf:
+
+$o = new carwingseu();
+$info = $o->login(username, password)
+print_r($info);
+
+
+Update Procedure
+----------------
+
+The process for getting a 'live' update from Carwings is as follows:
+
+- Login (you'll get stale information back)
+- Request an update
+- Poll the info() method at sensible intervals
+
+Every time you call info(), you'll get an array back, an element of which will
+be 'operation'. This field will tell you how the update is progressing.
+
+- PENDING - Still waiting for a response from your Leaf
+- OK - Response received. This only occurs on the first call after the update
+has been received.
+- null - Not awaiting an update
+
+There is a timestamp that will help you establish how old the data is.
+
+
+Limitations
+-----------
+
+I've only covered monitoring of the battery and range at this time. There is
+no AC information and no commands can be sent. However, these may be added in
+the future.
+
+Obviously if Nissan change the specification of the interface, or decide to
+block 3rd party apps, this will all go south pretty quickly.
+
+Usage of this code is entirly at your own risk.
+
+
+Getcsv
+------
+
+Also included is a script 'getcsv.php' which attempts to log in to the Nissan
+Carwings site and retrieve the downloadable CSV file for the current month's
+energy usage. Carwing's web framework is frankly bizarre so if they make any
+changes this script is likely to break almost at once.
+
+To use, call the script from the command line as follows:
+
+$ php getcsv.php <your carwings username> <you carwings password> <an output directory>
+
+
+Me
+--
+
+carwingseu@mrpjevans.com
+@mrpjevans
++PJ Evans
+
