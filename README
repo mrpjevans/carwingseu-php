@@ -11,6 +11,11 @@ See LICENSE.txt for details
 Version 0.1
 May 2014
 
+UPDATE - 30th September 2014: Following an major update to the Telematics service, this
+code no longer functions correctly. You are welcome, of course, to try and fix it, but
+my attempts so far have been unsuccessful. Sadly, Nissan do not appear to have published
+any legitimate method of accessing the status data for a Leaf. Sad face.
+
 
 Requirements
 ------------
